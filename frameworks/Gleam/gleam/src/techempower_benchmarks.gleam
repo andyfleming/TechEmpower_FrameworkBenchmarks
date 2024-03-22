@@ -1,24 +1,39 @@
-import gleam/http/elli
-import gleam/http/response.{type Response}
+import gleam/bytes_builder
+import gleam/erlang/process
 import gleam/http/request.{type Request}
-import gleam/bytes_builder.{type BytesBuilder}
+import gleam/http/response.{type Response as ResponseType, Response}
+import mist.{type Connection, type ResponseData}
 import birl
-import gleam/io
-
-// Define a HTTP service
-//
-pub fn my_service(_request: Request(t)) -> Response(BytesBuilder) {
-  let body = bytes_builder.from_string("Hello, world!")
-
-  response.new(200)
-  |> response.prepend_header("content-type", "text/plain")
-  |> response.prepend_header("server", "gleam")
-  |> response.prepend_header("date", birl.to_http(birl.now()))
-  |> response.set_body(body)
-}
 
 pub fn main() {
-  io.debug(birl.to_iso8601(birl.now()))
+  let not_found =
+    response.new(404)
+    |> response.set_body(mist.Bytes(bytes_builder.new()))
 
-  elli.become(my_service, on_port: 8080)
+  let assert Ok(_) =
+    fn(req: Request(Connection)) -> ResponseType(ResponseData) {
+      case request.path_segments(req) {
+        ["plaintext"] -> hello(req)
+        _ -> not_found
+      }
+    }
+    |> mist.new
+    |> mist.port(8080)
+    |> mist.start_http
+
+  process.sleep_forever()
+}
+
+fn hello(_request: Request(Connection)) -> ResponseType(ResponseData) {
+  let body = bytes_builder.from_string("Hello, World!")
+
+  Response(
+    200,
+    [
+      #("content-type", "text/plain"),
+      #("server", "gleam/mist"),
+      #("date", birl.to_http(birl.now())),
+    ],
+    mist.Bytes(body),
+  )
 }
