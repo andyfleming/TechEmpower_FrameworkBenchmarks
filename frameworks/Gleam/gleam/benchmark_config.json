@@ -1,0 +1,26 @@
+{
+  "framework": "gleam",
+  "tests": [
+    {
+      "default": {
+        "json_url": "/json",
+        "plaintext_url": "/plaintext",
+        "port": 8080,
+        "approach": "Realistic",
+        "classification": "Fullstack",
+        "database": "postgres",
+        "framework": "Gleam",
+        "language": "Gleam",
+        "flavor": "None",
+        "orm": "Raw",
+        "platform": "beam",
+        "webserver": "None",
+        "os": "Linux",
+        "database_os": "Linux",
+        "display_name": "Gleam",
+        "notes": "",
+        "versus": "None"
+      }
+    }
+  ]
+}
